@@ -1,0 +1,996 @@
+{% extends 'base.html' %}
+
+{% block title %}Home — Fleeto Premium Footwear{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ── HERO ────────────────────────────────────── */
+    .hero-section {
+        min-height: 100vh;
+        display: flex;
+        align-items: stretch;
+        overflow: hidden;
+    }
+
+    .hero-left {
+        background: var(--charcoal);
+        flex: 0 0 52%;
+        display: flex;
+        align-items: center;
+        padding: 80px 64px 80px 80px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-left::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at 30% 70%, rgba(200,169,110,0.12) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+    .hero-label {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--gold);
+        border-left: 2px solid var(--gold);
+        padding-left: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .hero-title {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(2.8rem, 5vw, 4.5rem);
+        font-weight: 700;
+        color: #fff;
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+        letter-spacing: -0.5px;
+    }
+
+    .hero-title em {
+        font-style: italic;
+        color: var(--gold);
+    }
+
+    .hero-subtitle {
+        font-size: 1.05rem;
+        color: rgba(255,255,255,0.65);
+        margin-bottom: 2.5rem;
+        line-height: 1.75;
+        max-width: 400px;
+    }
+
+    .hero-cta-group {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .hero-cta-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        background: var(--gold);
+        color: var(--charcoal);
+        font-weight: 700;
+        font-size: 0.82rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 16px 36px;
+        border: 2px solid var(--gold);
+        text-decoration: none;
+        transition: all 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+
+    .hero-cta-primary:hover {
+        background: transparent;
+        color: var(--gold);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(200,169,110,0.3);
+    }
+
+    .hero-cta-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: rgba(255,255,255,0.6);
+        font-size: 0.82rem;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(255,255,255,0.25);
+        padding-bottom: 2px;
+        transition: all 0.3s ease;
+    }
+
+    .hero-cta-secondary:hover {
+        color: var(--gold);
+        border-color: var(--gold);
+    }
+
+    .hero-stats {
+        display: flex;
+        gap: 2.5rem;
+        margin-top: 4rem;
+        padding-top: 2.5rem;
+        border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .hero-stat-number {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--gold);
+        line-height: 1;
+    }
+
+    .hero-stat-label {
+        font-size: 0.72rem;
+        color: rgba(255,255,255,0.45);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-top: 4px;
+    }
+
+    .hero-right {
+        flex: 0 0 48%;
+        background: var(--charcoal-mid);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-right::before {
+        content: '';
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(200,169,110,0.18) 0%, transparent 65%);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        animation: goldPulse 5s ease-in-out infinite;
+    }
+
+    @keyframes goldPulse {
+        0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+        50% { transform: translate(-50%, -50%) scale(1.12); opacity: 1; }
+    }
+
+    .hero-shoe {
+        font-size: 16rem;
+        position: relative;
+        z-index: 2;
+        filter: drop-shadow(0 30px 60px rgba(200,169,110,0.35));
+        animation: heroFloat 6s ease-in-out infinite;
+        line-height: 1;
+    }
+
+    @keyframes heroFloat {
+        0%, 100% { transform: translateY(0) rotate(-5deg); }
+        50% { transform: translateY(-18px) rotate(-5deg); }
+    }
+
+    .hero-accent-lines {
+        position: absolute;
+        left: 40px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 3;
+    }
+
+    .hero-accent-lines span {
+        display: block;
+        height: 3px;
+        background: var(--gold);
+        border-radius: 2px;
+        margin-bottom: 14px;
+        opacity: 0.5;
+    }
+
+    /* ── MARQUEE ─────────────────────────────────── */
+    .marquee-strip {
+        background: var(--charcoal-soft);
+        padding: 14px 0;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .marquee-inner {
+        display: inline-block;
+        animation: marquee 28s linear infinite;
+    }
+
+    .marquee-inner span {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--gold);
+        padding: 0 2.5rem;
+    }
+
+    .marquee-inner span.dot {
+        color: rgba(200,169,110,0.4);
+        padding: 0;
+    }
+
+    @keyframes marquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+
+    /* ── FEATURES SECTION ────────────────────────── */
+    .features-section {
+        background: var(--bg-cream);
+        padding: 90px 0;
+    }
+
+    .feature-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        padding: 44px 32px;
+        text-align: center;
+        transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+        height: 100%;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 24px 56px rgba(0,0,0,0.1);
+        border-color: var(--gold);
+    }
+
+    .feature-icon-wrap {
+        width: 68px;
+        height: 68px;
+        background: var(--surface);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        border: 1px solid var(--border);
+    }
+
+    .feature-icon-wrap i {
+        font-size: 1.75rem;
+        color: var(--gold);
+    }
+
+    .feature-title {
+        font-weight: 700;
+        font-size: 0.95rem;
+        letter-spacing: 0.03em;
+        color: var(--charcoal);
+        margin-bottom: 0.5rem;
+    }
+
+    .feature-desc {
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        line-height: 1.65;
+        margin: 0;
+    }
+
+    /* ── SECTION HEADER ──────────────────────────── */
+    .section-header {
+        margin-bottom: 3.5rem;
+    }
+
+    /* ── PRODUCT CARD (homepage variant) ─────────── */
+    .hp-product-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+        height: 100%;
+        position: relative;
+    }
+
+    .hp-product-card:hover {
+        box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+        transform: translateY(-6px);
+    }
+
+    .hp-product-img-wrap {
+        position: relative;
+        overflow: hidden;
+        background: var(--surface);
+    }
+
+    .hp-product-img-wrap img {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+
+    .hp-product-card:hover .hp-product-img-wrap img {
+        transform: scale(1.08);
+    }
+
+    .hp-product-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(15,15,15,0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.35s ease;
+    }
+
+    .hp-product-card:hover .hp-product-overlay {
+        opacity: 1;
+    }
+
+    .hp-quick-add {
+        background: var(--gold);
+        color: var(--charcoal);
+        border: none;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 13px 28px;
+        cursor: pointer;
+        transform: translateY(12px);
+        transition: all 0.3s ease;
+    }
+
+    .hp-product-card:hover .hp-quick-add {
+        transform: translateY(0);
+    }
+
+    .hp-quick-add:hover {
+        background: var(--charcoal);
+        color: var(--gold);
+    }
+
+    .hp-product-body {
+        padding: 20px 22px 22px;
+    }
+
+    .hp-product-category {
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 0.35rem;
+    }
+
+    .hp-product-name {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--charcoal);
+        margin-bottom: 0.5rem;
+        line-height: 1.35;
+    }
+
+    .hp-product-name a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .hp-product-name a:hover {
+        color: var(--gold-dark);
+    }
+
+    .hp-product-price {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--gold-dark);
+    }
+
+    /* ── FEATURED SECTION ────────────────────────── */
+    .featured-section {
+        background: #fff;
+        padding: 90px 0;
+    }
+
+    /* ── CATEGORIES SECTION ──────────────────────── */
+    .categories-section {
+        background: var(--surface);
+        padding: 90px 0;
+    }
+
+    .cat-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        padding: 40px 24px;
+        text-align: center;
+        text-decoration: none;
+        display: block;
+        transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+        height: 100%;
+    }
+
+    .cat-card:hover {
+        transform: translateY(-6px) scale(1.01);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+        border-color: var(--gold);
+    }
+
+    .cat-icon {
+        font-size: 2.25rem;
+        color: var(--gold);
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .cat-name {
+        font-weight: 700;
+        font-size: 0.92rem;
+        color: var(--charcoal);
+        letter-spacing: 0.03em;
+        margin-bottom: 0.25rem;
+    }
+
+    .cat-count {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+    }
+
+    /* ── NEW ARRIVALS (dark) ──────────────────────── */
+    .new-arrivals-section {
+        background: var(--charcoal);
+        padding: 90px 0;
+    }
+
+    .new-arrivals-section .section-label {
+        color: var(--gold);
+    }
+
+    .new-arrivals-section .section-heading {
+        color: #fff;
+    }
+
+    .dark-product-card {
+        background: var(--charcoal-mid);
+        border: 1px solid rgba(255,255,255,0.08);
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+        height: 100%;
+    }
+
+    .dark-product-card:hover {
+        border-color: var(--gold);
+        transform: translateY(-6px);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+
+    .dark-product-card .hp-product-img-wrap img {
+        height: 280px;
+    }
+
+    .dark-product-card .hp-product-body {
+        background: var(--charcoal-mid);
+    }
+
+    .dark-product-card .hp-product-category {
+        color: rgba(255,255,255,0.35);
+    }
+
+    .dark-product-card .hp-product-name {
+        color: rgba(255,255,255,0.9);
+    }
+
+    .dark-product-card .hp-product-name a {
+        color: rgba(255,255,255,0.9);
+    }
+
+    .dark-product-card .hp-product-name a:hover {
+        color: var(--gold);
+    }
+
+    .dark-product-card .hp-product-price {
+        color: var(--gold);
+    }
+
+    .view-all-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--gold);
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(200,169,110,0.4);
+        padding-bottom: 2px;
+        transition: all 0.3s ease;
+    }
+
+    .view-all-link:hover {
+        color: var(--gold-dark);
+        gap: 0.85rem;
+    }
+
+    /* ── NEWSLETTER ──────────────────────────────── */
+    .newsletter-section {
+        background: var(--charcoal-mid);
+        padding: 100px 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .newsletter-section::before {
+        content: '';
+        position: absolute;
+        width: 700px;
+        height: 700px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(200,169,110,0.1) 0%, transparent 65%);
+        top: 50%;
+        left: -200px;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    .newsletter-section::after {
+        content: '';
+        position: absolute;
+        width: 500px;
+        height: 500px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(200,169,110,0.08) 0%, transparent 65%);
+        top: 50%;
+        right: -150px;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    .newsletter-heading {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(2rem, 4vw, 3.2rem);
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 1rem;
+    }
+
+    .newsletter-heading .gold-gradient {
+        background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .newsletter-sub {
+        color: rgba(255,255,255,0.55);
+        font-size: 1rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .newsletter-form-wrap {
+        max-width: 520px;
+        margin: 0 auto;
+    }
+
+    .newsletter-form-wrap .form-control {
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.15);
+        color: #fff;
+        padding: 16px 20px;
+        font-size: 0.9rem;
+        border-radius: 0;
+    }
+
+    .newsletter-form-wrap .form-control::placeholder {
+        color: rgba(255,255,255,0.35);
+    }
+
+    .newsletter-form-wrap .form-control:focus {
+        background: rgba(255,255,255,0.1);
+        border-color: var(--gold);
+        box-shadow: none;
+    }
+
+    .newsletter-form-wrap .btn-subscribe {
+        background: var(--gold);
+        color: var(--charcoal);
+        font-weight: 700;
+        font-size: 0.82rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 16px 28px;
+        border: none;
+        border-radius: 0;
+        white-space: nowrap;
+        transition: all 0.3s ease;
+    }
+
+    .newsletter-form-wrap .btn-subscribe:hover {
+        background: var(--gold-dark);
+    }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+        .hero-section {
+            flex-direction: column;
+            min-height: auto;
+        }
+        .hero-left {
+            flex: none;
+            padding: 70px 32px;
+        }
+        .hero-right {
+            flex: none;
+            min-height: 380px;
+        }
+        .hero-shoe {
+            font-size: 10rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .hero-left {
+            padding: 56px 24px;
+        }
+        .hero-stats {
+            gap: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── HERO ─────────────────────────────────────────── -->
+<section class="hero-section">
+    <div class="hero-left">
+        <div class="hero-content" style="position:relative; z-index:2; width:100%;">
+            <div class="hero-label">New Season Collection</div>
+            <h1 class="hero-title">Step Into <em>Luxury</em></h1>
+            <p class="hero-subtitle">Discover premium footwear where craftsmanship meets contemporary design. Curated for those who demand the extraordinary.</p>
+            <div class="hero-cta-group">
+                <a href="/products/" class="hero-cta-primary">
+                    Shop Now <i class="bi bi-arrow-right"></i>
+                </a>
+                <a href="/products/?is_new=true" class="hero-cta-secondary">
+                    New Arrivals <i class="bi bi-chevron-right small"></i>
+                </a>
+            </div>
+            <div class="hero-stats">
+                <div>
+                    <div class="hero-stat-number">500+</div>
+                    <div class="hero-stat-label">Premium Styles</div>
+                </div>
+                <div>
+                    <div class="hero-stat-number">98%</div>
+                    <div class="hero-stat-label">Satisfaction Rate</div>
+                </div>
+                <div>
+                    <div class="hero-stat-number">50K+</div>
+                    <div class="hero-stat-label">Happy Customers</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="hero-right">
+        <div class="hero-accent-lines">
+            <span style="width:60px;"></span>
+            <span style="width:80px;"></span>
+            <span style="width:50px;"></span>
+        </div>
+        <div class="hero-shoe">👟</div>
+    </div>
+</section>
+
+<!-- ── MARQUEE STRIP ─────────────────────────────────── -->
+<div class="marquee-strip">
+    <div class="marquee-inner">
+        <span>Free Shipping</span><span class="dot">•</span>
+        <span>Premium Quality</span><span class="dot">•</span>
+        <span>New Arrivals</span><span class="dot">•</span>
+        <span>Exclusive Deals</span><span class="dot">•</span>
+        <span>Easy Returns</span><span class="dot">•</span>
+        <span>Secure Checkout</span><span class="dot">•</span>
+        <span>Free Shipping</span><span class="dot">•</span>
+        <span>Premium Quality</span><span class="dot">•</span>
+        <span>New Arrivals</span><span class="dot">•</span>
+        <span>Exclusive Deals</span><span class="dot">•</span>
+        <span>Easy Returns</span><span class="dot">•</span>
+        <span>Secure Checkout</span><span class="dot">•</span>
+    </div>
+</div>
+
+<!-- ── FEATURES ──────────────────────────────────────── -->
+<section class="features-section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-3 col-sm-6" data-aos="fade-up" data-aos-delay="0">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap">
+                        <i class="bi bi-truck"></i>
+                    </div>
+                    <div class="feature-title">Free Shipping</div>
+                    <p class="feature-desc">Complimentary delivery on all orders over $50. Fast and tracked.</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6" data-aos="fade-up" data-aos-delay="80">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <div class="feature-title">Secure Payment</div>
+                    <p class="feature-desc">100% encrypted and secure transactions. Shop with confidence.</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6" data-aos="fade-up" data-aos-delay="160">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </div>
+                    <div class="feature-title">Easy Returns</div>
+                    <p class="feature-desc">Hassle-free 30-day returns. No questions asked.</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6" data-aos="fade-up" data-aos-delay="240">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap">
+                        <i class="bi bi-headset"></i>
+                    </div>
+                    <div class="feature-title">24/7 Support</div>
+                    <p class="feature-desc">Dedicated concierge service whenever you need us.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── FEATURED PRODUCTS ─────────────────────────────── -->
+<section class="featured-section">
+    <div class="container">
+        <div class="section-header d-flex align-items-end justify-content-between flex-wrap gap-3" data-aos="fade-up">
+            <div>
+                <div class="section-label">Handpicked For You</div>
+                <h2 class="section-heading">Featured Products</h2>
+            </div>
+            <a href="/products/?is_featured=true" class="view-all-link" style="color: var(--gold-dark);">
+                View All <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+        <div class="row g-4" id="featuredProducts">
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border" role="status" style="color: var(--gold) !important;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── CATEGORIES ────────────────────────────────────── -->
+<section class="categories-section">
+    <div class="container">
+        <div class="section-header text-center" data-aos="fade-up">
+            <div class="section-label">Browse The Range</div>
+            <h2 class="section-heading">Shop by Category</h2>
+        </div>
+        <div class="row g-3" id="categoriesList">
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border" role="status" style="color: var(--gold) !important;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── NEW ARRIVALS ──────────────────────────────────── -->
+<section class="new-arrivals-section">
+    <div class="container">
+        <div class="section-header d-flex align-items-end justify-content-between flex-wrap gap-3" data-aos="fade-up">
+            <div>
+                <div class="section-label">Just Dropped</div>
+                <h2 class="section-heading" style="color:#fff;">New Arrivals</h2>
+            </div>
+            <a href="/products/?is_new=true" class="view-all-link">
+                View All <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+        <div class="row g-4" id="newArrivals">
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border" role="status" style="color: var(--gold) !important;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── NEWSLETTER ────────────────────────────────────── -->
+<section class="newsletter-section">
+    <div class="container text-center" style="position:relative; z-index:2;">
+        <div data-aos="fade-up">
+            <div class="section-label" style="color:var(--gold);">Stay Connected</div>
+            <h2 class="newsletter-heading">Join The <span class="gold-gradient">Fleeto</span> Family</h2>
+            <p class="newsletter-sub">Subscribe for exclusive drops, style guides, and members-only offers.</p>
+            <div class="newsletter-form-wrap">
+                <form class="d-flex" id="newsletterFormMain">
+                    <input type="email" class="form-control flex-grow-1" placeholder="Enter your email address" required>
+                    <button class="btn-subscribe" type="submit">Subscribe</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Helper function to get image URL
+    function getImageUrl(imageUrl) {
+        if (!imageUrl || imageUrl === 'null' || imageUrl === 'undefined') {
+            return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23F2EFE8" width="400" height="300"/%3E%3Ctext fill="%23888" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="18"%3ENo Image%3C/text%3E%3C/svg%3E';
+        }
+        return imageUrl;
+    }
+
+    // Load Featured Products with Premium Styling
+    fetch('/api/products/featured/')
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('featuredProducts');
+            if (data.results && data.results.length > 0) {
+                container.innerHTML = data.results.slice(0, 3).map((product, i) => `
+                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="${i * 80}">
+                        <div class="hp-product-card">
+                            <div class="hp-product-img-wrap">
+                                <img src="${getImageUrl(product.primary_image)}" alt="${product.name}"
+                                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'400\\' height=\\'300\\'%3E%3Crect fill=\\'%23F2EFE8\\' width=\\'400\\' height=\\'300\\'/%3E%3C/svg%3E';">
+                                ${product.is_new ? '<span class="badge-custom badge-new">New</span>' : ''}
+                                ${product.is_on_sale ? '<span class="badge-custom badge-sale">Sale</span>' : ''}
+                                <div class="hp-product-overlay">
+                                    <button class="hp-quick-add" onclick="addToCart(${product.id})">
+                                        <i class="bi bi-bag-plus me-2"></i>Quick Add
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="hp-product-body">
+                                <div class="hp-product-category">${product.category_name || 'Footwear'}</div>
+                                <div class="hp-product-name">
+                                    <a href="/products/${product.slug}/">${product.name}</a>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 mt-2">
+                                    <span class="hp-product-price">$${product.price}</span>
+                                    ${product.compare_at_price ? `<span class="compare-price">$${product.compare_at_price}</span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = '<div class="col-12 text-center py-5"><p class="text-muted">No featured products available. Check back soon!</p></div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading featured products:', error);
+            document.getElementById('featuredProducts').innerHTML = '<div class="col-12 text-center py-5"><p class="text-muted">Unable to load products. Please refresh the page.</p></div>';
+        });
+
+    // Load Categories
+    fetch('/api/products/categories/')
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('categoriesList');
+            if (data.results && data.results.length > 0) {
+                container.innerHTML = data.results.slice(0, 8).map((category, i) => `
+                    <div class="col-lg-3 col-md-4 col-sm-6" data-aos="fade-up" data-aos-delay="${i * 60}">
+                        <a href="/products/?category=${category.slug}" class="cat-card">
+                            <i class="bi bi-grid-3x3-gap-fill cat-icon"></i>
+                            <div class="cat-name">${category.name}</div>
+                            <div class="cat-count">${category.product_count || 0} products</div>
+                        </a>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = '<div class="col-12 text-center py-5"><p class="text-muted">No categories available yet.</p></div>';
+            }
+        })
+        .catch(error => console.error('Error loading categories:', error));
+
+    // Load New Arrivals with Premium Styling
+    fetch('/api/products/new-arrivals/')
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('newArrivals');
+            if (data.results && data.results.length > 0) {
+                container.innerHTML = data.results.slice(0, 3).map((product, i) => `
+                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="${i * 80}">
+                        <div class="dark-product-card hp-product-card">
+                            <div class="hp-product-img-wrap">
+                                <img src="${getImageUrl(product.primary_image)}" alt="${product.name}"
+                                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'400\\' height=\\'300\\'%3E%3Crect fill=\\'%231a1a1a\\' width=\\'400\\' height=\\'300\\'/%3E%3C/svg%3E';">
+                                <span class="badge-custom badge-new">New</span>
+                                <div class="hp-product-overlay">
+                                    <button class="hp-quick-add" onclick="addToCart(${product.id})">
+                                        <i class="bi bi-bag-plus me-2"></i>Quick Add
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="hp-product-body">
+                                <div class="hp-product-category">${product.category_name || 'Footwear'}</div>
+                                <div class="hp-product-name">
+                                    <a href="/products/${product.slug}/">${product.name}</a>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 mt-2">
+                                    <span class="hp-product-price">$${product.price}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = '<div class="col-12 text-center py-5"><p style="color:rgba(255,255,255,0.5);">No new arrivals available. Check back soon!</p></div>';
+            }
+        })
+        .catch(error => console.error('Error loading new arrivals:', error));
+
+    // Add to Cart function
+    function addToCart(productId) {
+        if (typeof Auth === 'undefined' || !Auth.isAuthenticated()) {
+            if (confirm('Please login to add items to cart. Would you like to login now?')) {
+                window.location.href = '/login/';
+            }
+            return;
+        }
+
+        Auth.fetch('/api/cart/add/', {
+            method: 'POST',
+            body: JSON.stringify({
+                product_id: productId,
+                quantity: 1
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message || data.cart) {
+                alert('Product added to cart successfully!');
+                Auth.updateCartCount();
+            } else if (data.error) {
+                alert(data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Please login to add items to cart.');
+            window.location.href = '/login/';
+        });
+    }
+
+    // Newsletter subscription
+    document.getElementById('newsletterFormMain')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = this.querySelector('input[type="email"]').value;
+
+        fetch('/api/notifications/newsletter/subscribe/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email: email })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message || 'Thank you for subscribing!');
+            this.reset();
+        })
+        .catch(error => console.error('Error:', error));
+    });
+</script>
+{% endblock %}

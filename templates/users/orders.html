@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}My Orders - Fleeto{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">My Orders</h2>
+        <a class="btn btn-outline-secondary" href="/">Continue Shopping</a>
+    </div>
+
+    <div id="ordersContainer" class="card shadow-sm">
+        <div class="card-body">
+            <div id="ordersLoading" class="text-center py-4">
+                <div class="spinner-border" role="status"></div>
+                <div class="mt-2">Loading your orders...</div>
+            </div>
+            <div id="ordersEmpty" class="alert alert-info d-none">You have not placed any orders yet.</div>
+            <div class="table-responsive d-none" id="ordersTableWrap">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Total</th>
+                            <th>Items</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <p class="text-muted mt-3">Tip: Use the View Orders link in the navbar anytime.</p>
+    
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    function show(el, yes){ el.classList[yes?'remove':'add']('d-none'); }
+    const loading = document.getElementById('ordersLoading');
+    const empty = document.getElementById('ordersEmpty');
+    const wrap = document.getElementById('ordersTableWrap');
+    const tbody = document.getElementById('ordersTable');
+
+    async function loadOrders(){
+        if (typeof Auth === 'undefined' || !Auth.isAuthenticated()) {
+            show(loading, false); show(empty, true); empty.textContent = 'Please sign in to see your orders.'; return;
+        }
+        try{
+            const res = await Auth.fetch('/api/orders/');
+            const data = await res.json();
+            show(loading, false);
+            const orders = Array.isArray(data) ? data : (data.results || []);
+            if (!orders || orders.length === 0){ show(empty, true); return; }
+            show(wrap, true);
+            tbody.innerHTML = orders.map(o => `
+                <tr>
+                    <td><a href="/api/orders/${o.order_number}/" target="_blank">${o.order_number}</a></td>
+                    <td>${new Date(o.created_at).toLocaleString()}</td>
+                    <td><span class="badge bg-secondary">${o.status_display}</span></td>
+                    <td>$${o.total_amount}</td>
+                    <td>${o.item_count}</td>
+                </tr>
+            `).join('');
+        }catch(e){ show(loading, false); show(empty, true); empty.textContent='Failed to load orders.'; }
+    }
+    loadOrders();
+});
+</script>
+{% endblock %}
+
+

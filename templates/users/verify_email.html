@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Verify Email - Fleeto{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0" style="border-radius: 18px;">
+                <div class="card-body p-5 text-center">
+                    {% if success %}
+                        <div class="mb-3">
+                            <!-- Success check shield SVG -->
+                            <svg width="86" height="86" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <defs>
+                                    <linearGradient id="g1" x1="0" x2="1">
+                                        <stop offset="0%" stop-color="#27ae60"/>
+                                        <stop offset="100%" stop-color="#2ecc71"/>
+                                    </linearGradient>
+                                </defs>
+                                <path d="M50 6l34 13v27c0 24-16 44-34 52-18-8-34-28-34-52V19L50 6z" fill="#f4f9fc" stroke="#d6e4ef"/>
+                                <path d="M30 50l13 13 27-30" fill="none" stroke="url(#g1)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h2 class="fw-bold" style="color:#2c3e50">Email verified!</h2>
+                        <p class="text-muted mb-4">{{ message }}</p>
+                        <div class="d-flex gap-2 justify-content-center">
+                            <a class="btn btn-primary" href="/login/">Sign in</a>
+                            <a class="btn btn-outline-secondary" href="/">Go to Home</a>
+                        </div>
+                    {% else %}
+                        <div class="mb-3">
+                            <!-- Error / warning icon -->
+                            <svg width="86" height="86" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <defs>
+                                    <linearGradient id="g2" x1="0" x2="1">
+                                        <stop offset="0%" stop-color="#e74c3c"/>
+                                        <stop offset="100%" stop-color="#c0392b"/>
+                                    </linearGradient>
+                                </defs>
+                                <circle cx="50" cy="50" r="40" fill="#fff5f4" stroke="#f0c8c3"/>
+                                <path d="M50 26v32" stroke="url(#g2)" stroke-width="8" stroke-linecap="round"/>
+                                <circle cx="50" cy="72" r="5" fill="url(#g2)"/>
+                            </svg>
+                        </div>
+                        <h2 class="fw-bold" style="color:#2c3e50">Verification link invalid</h2>
+                        <p class="text-muted mb-4">{{ message }}</p>
+                        <a class="btn btn-primary" href="/register/">Create Account</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

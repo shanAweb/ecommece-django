@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+{% block title %}My Wishlist - Fleeto{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <div id="userAvatarContainer" style="width: 120px; height: 120px; margin: 0 auto; border-radius: 50%; overflow: hidden; border: 3px solid #e74c3c; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
+                        <i class="bi bi-person-circle" style="font-size: 5rem; color: #e74c3c;"></i>
+                    </div>
+                    <h5 class="mt-3 mb-1" id="userName">Loading...</h5>
+                    <p class="text-muted small mb-0" id="userEmail">Loading...</p>
+                </div>
+            </div>
+            
+            <div class="list-group mt-4">
+                <a href="/account/" class="list-group-item list-group-item-action">
+                    <i class="bi bi-person me-2"></i>Profile
+                </a>
+                <a href="/orders/" class="list-group-item list-group-item-action">
+                    <i class="bi bi-bag-check me-2"></i>My Orders
+                </a>
+                <a href="/wishlist/" class="list-group-item list-group-item-action active">
+                    <i class="bi bi-heart me-2"></i>Wishlist
+                </a>
+                <a href="/account/addresses/" class="list-group-item list-group-item-action">
+                    <i class="bi bi-geo-alt me-2"></i>Addresses
+                </a>
+                <a href="/account/settings/" class="list-group-item list-group-item-action">
+                    <i class="bi bi-gear me-2"></i>Settings
+                </a>
+            </div>
+        </div>
+        
+        <div class="col-lg-9">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0">My Wishlist</h4>
+                </div>
+                <div class="card-body" id="wishlistContent">
+                    <div class="text-center py-5">
+                        <div class="spinner-border" role="status"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/auth.js"></script>
+<script>
+    if (!Auth.isAuthenticated()) {
+        window.location.href = '/login/';
+    }
+
+    // Load user data
+    Auth.getUserData().then(data => {
+        if (data) {
+            document.getElementById('userName').textContent = data.full_name || data.email;
+            document.getElementById('userEmail').textContent = data.email;
+            
+            // Display avatar if available
+            const avatarContainer = document.getElementById('userAvatarContainer');
+            if (data.avatar) {
+                avatarContainer.innerHTML = `<img src="${data.avatar}" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover;">`;
+            }
+        }
+    });
+
+    // Load wishlist
+    async function loadWishlist() {
+        try {
+            const response = await Auth.fetch('/api/wishlist/');
+            const data = await response.json();
+            
+            if (response.ok) {
+                if (data.results && data.results.length > 0) {
+                    displayWishlist(data.results);
+                } else if (Array.isArray(data) && data.length > 0) {
+                    displayWishlist(data);
+                } else {
+                    document.getElementById('wishlistContent').innerHTML = `
+                        <div class="text-center py-5">
+                            <i class="bi bi-heart" style="font-size: 4rem; color: #ddd;"></i>
+                            <p class="text-muted mt-3">Your wishlist is empty</p>
+                            <a href="/products/" class="btn btn-primary btn-sm">
+                                <i class="bi bi-bag"></i> Start Shopping
+                            </a>
+                        </div>
+                    `;
+                }
+            } else {
+                throw new Error('Failed to load wishlist');
+            }
+        } catch (error) {
+            console.error('Error loading wishlist:', error);
+            document.getElementById('wishlistContent').innerHTML = `
+                <div class="alert alert-danger">Failed to load wishlist. Please try again.</div>
+            `;
+        }
+    }
+
+    function displayWishlist(items) {
+        const html = `
+            <div class="row">
+                ${items.map(item => {
+                    const product = item.product;
+                    const imageUrl = product.primary_image || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'%3E%3Crect fill=\'%23f0f0f0\' width=\'200\' height=\'200\'/%3E%3Ctext fill=\'%23999\' x=\'50%25\' y=\'50%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-family=\'Arial\' font-size=\'16\'%3ENo Image%3C/text%3E%3C/svg%3E';
+                    
+                    return `
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 shadow-sm">
+                                <div class="position-relative">
+                                    <img src="${imageUrl}" class="card-img-top" alt="${product.name}" style="height: 200px; object-fit: cover;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27200%27 height=%27200%27%3E%3Crect fill=%27%23f0f0f0%27 width=%27200%27 height=%27200%27/%3E%3Ctext fill=%27%23999%27 x=%2750%25%27 y=%2750%25%27 dominant-baseline=%27middle%27 text-anchor=%27middle%27 font-family=%27Arial%27 font-size=%2716%27%3ENo Image%3C/text%3E%3C/svg%3E'">
+                                    <button class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2" onclick="removeFromWishlist(${product.id})" title="Remove from wishlist">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="card-title mb-2">
+                                        <a href="/products/${product.slug}/" class="text-decoration-none text-dark">${product.name}</a>
+                                    </h6>
+                                    <p class="text-muted small mb-2">${product.brand || 'No Brand'}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="fw-bold" style="color: #e74c3c;">$${product.price}</span>
+                                        <button class="btn btn-sm btn-primary" onclick="addToCartFromWishlist(${product.id})">
+                                            <i class="bi bi-cart-plus"></i> Add to Cart
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+        
+        document.getElementById('wishlistContent').innerHTML = html;
+    }
+
+    async function removeFromWishlist(productId) {
+        try {
+            const response = await Auth.fetch(`/api/wishlist/remove/${productId}/`, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                loadWishlist();
+            } else {
+                alert('Failed to remove item from wishlist. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error removing from wishlist:', error);
+            alert('An error occurred. Please try again.');
+        }
+    }
+
+    async function addToCartFromWishlist(productId) {
+        try {
+            // Add to cart
+            const cartResponse = await Auth.fetch('/api/cart/add/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    product_id: productId,
+                    quantity: 1
+                })
+            });
+            
+            if (cartResponse.ok) {
+                // Remove from wishlist
+                await Auth.fetch(`/api/wishlist/remove/${productId}/`, {
+                    method: 'DELETE'
+                });
+                
+                alert('Item added to cart!');
+                loadWishlist();
+            } else {
+                const data = await cartResponse.json();
+                alert(data.error || 'Failed to add item to cart. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            alert('An error occurred. Please try again.');
+        }
+    }
+
+    // Load wishlist on page load
+    loadWishlist();
+</script>
+{% endblock %}
+

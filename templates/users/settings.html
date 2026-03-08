@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+
+{% block title %}Settings - Fleeto{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <div id="userAvatarContainer" style="width: 120px; height: 120px; margin: 0 auto; border-radius: 50%; overflow: hidden; border: 3px solid #e74c3c; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
+                        <i class="bi bi-person-circle" style="font-size: 5rem; color: #e74c3c;"></i>
+                    </div>
+                    <h5 class="mt-3 mb-1" id="userName">Loading...</h5>
+                    <p class="text-muted small mb-0" id="userEmail">Loading...</p>
+                </div>
+            </div>
+            
+            <div class="list-group mt-4">
+                <a href="/account/" class="list-group-item list-group-item-action">
+                    <i class="bi bi-person me-2"></i>Profile
+                </a>
+                <a href="/orders/" class="list-group-item list-group-item-action">
+                    <i class="bi bi-bag-check me-2"></i>My Orders
+                </a>
+                <a href="/wishlist/" class="list-group-item list-group-item-action">
+                    <i class="bi bi-heart me-2"></i>Wishlist
+                </a>
+                <a href="/account/addresses/" class="list-group-item list-group-item-action">
+                    <i class="bi bi-geo-alt me-2"></i>Addresses
+                </a>
+                <a href="/account/settings/" class="list-group-item list-group-item-action active">
+                    <i class="bi bi-gear me-2"></i>Settings
+                </a>
+            </div>
+        </div>
+        
+        <div class="col-lg-9">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0">Account Settings</h4>
+                </div>
+                <div class="card-body">
+                    <h5 class="mb-3">Change Password</h5>
+                    <form id="changePasswordForm">
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="currentPassword" class="form-label">Current Password <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" id="currentPassword" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="newPassword" class="form-label">New Password <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" id="newPassword" required minlength="8">
+                                <small class="text-muted">Minimum 8 characters</small>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="confirmPassword" class="form-label">Confirm New Password <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" id="confirmPassword" required minlength="8">
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info d-none" id="passwordSuccessMessage"></div>
+                        <div class="alert alert-danger d-none" id="passwordErrorMessage"></div>
+                        
+                        <button type="submit" class="btn btn-primary" id="changePasswordBtn">
+                            <span class="spinner-border spinner-border-sm d-none" id="passwordSpinner"></span>
+                            Change Password
+                        </button>
+                    </form>
+                    
+                    <hr class="my-5">
+                    
+                    <h5 class="mb-3 text-danger">Danger Zone</h5>
+                    <div class="border border-danger rounded p-3">
+                        <h6>Logout from all devices</h6>
+                        <p class="text-muted small mb-2">This will log you out from all devices where you're currently logged in.</p>
+                        <button class="btn btn-outline-danger btn-sm" id="logoutAllBtn">
+                            <span class="spinner-border spinner-border-sm d-none" id="logoutSpinner"></span>
+                            Logout All Devices
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/auth.js"></script>
+<script>
+    if (!Auth.isAuthenticated()) {
+        window.location.href = '/login/';
+    }
+
+    // Load user data
+    Auth.getUserData().then(data => {
+        if (data) {
+            document.getElementById('userName').textContent = data.full_name || data.email;
+            document.getElementById('userEmail').textContent = data.email;
+            
+            // Display avatar if available
+            const avatarContainer = document.getElementById('userAvatarContainer');
+            if (data.avatar) {
+                avatarContainer.innerHTML = `<img src="${data.avatar}" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover;">`;
+            }
+        }
+    });
+
+    // Handle change password
+    document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const changePasswordBtn = document.getElementById('changePasswordBtn');
+        const passwordSpinner = document.getElementById('passwordSpinner');
+        const successMessage = document.getElementById('passwordSuccessMessage');
+        const errorMessage = document.getElementById('passwordErrorMessage');
+        
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        
+        successMessage.classList.add('d-none');
+        errorMessage.classList.add('d-none');
+        
+        if (newPassword !== confirmPassword) {
+            errorMessage.textContent = 'New passwords do not match!';
+            errorMessage.classList.remove('d-none');
+            return;
+        }
+        
+        changePasswordBtn.disabled = true;
+        passwordSpinner.classList.remove('d-none');
+        
+        try {
+            const response = await Auth.fetch('/api/users/change-password/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    old_password: document.getElementById('currentPassword').value,
+                    new_password: newPassword
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                successMessage.textContent = 'Password changed successfully!';
+                successMessage.classList.remove('d-none');
+                document.getElementById('changePasswordForm').reset();
+            } else {
+                errorMessage.textContent = data.error || data.old_password || data.new_password || 'Failed to change password. Please try again.';
+                errorMessage.classList.remove('d-none');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            errorMessage.textContent = 'An error occurred. Please try again.';
+            errorMessage.classList.remove('d-none');
+        } finally {
+            changePasswordBtn.disabled = false;
+            passwordSpinner.classList.add('d-none');
+        }
+    });
+
+    // Handle logout all devices
+    document.getElementById('logoutAllBtn').addEventListener('click', async () => {
+        if (!confirm('Are you sure you want to logout from all devices? You will need to login again.')) {
+            return;
+        }
+        
+        const logoutAllBtn = document.getElementById('logoutAllBtn');
+        const logoutSpinner = document.getElementById('logoutSpinner');
+        
+        logoutAllBtn.disabled = true;
+        logoutSpinner.classList.remove('d-none');
+        
+        try {
+            const response = await Auth.fetch('/api/users/logout-all/', {
+                method: 'POST',
+            });
+            
+            if (response.ok) {
+                Auth.logout();
+                window.location.href = '/login/?message=Logged out from all devices successfully';
+            } else {
+                alert('Failed to logout from all devices. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        } finally {
+            logoutAllBtn.disabled = false;
+            logoutSpinner.classList.add('d-none');
+        }
+    });
+</script>
+{% endblock %}
+

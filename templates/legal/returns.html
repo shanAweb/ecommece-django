@@ -1,0 +1,265 @@
+{% extends 'base.html' %}
+
+{% block title %}Returns - Fleeto{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Returns Policy Section -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-5">
+                    <h1 class="fw-bold mb-4" style="color: #2c3e50;">Returns & Exchanges</h1>
+                    
+                    <div class="alert" style="background-color: #fff3cd; border-color: #f39c12; color: #2c3e50;">
+                        <i class="bi bi-info-circle me-2"></i>
+                        We offer a <strong>30-day return policy</strong> from the date of delivery. Items must be unused and in original packaging.
+                    </div>
+                    
+                    <h3 class="fw-bold mt-5 mb-3" style="color: #e74c3c;">Return Policy</h3>
+                    <p style="color: #2c3e50; line-height: 1.8;">You may return most new, unopened items within 30 days of delivery for a full refund. We'll also pay the return shipping costs if the return is a result of our error.</p>
+                    
+                    <h4 class="fw-bold mt-4 mb-3" style="color: #2c3e50; font-size: 1.1rem;">Eligible for Return:</h4>
+                    <ul style="color: #2c3e50; line-height: 1.8;">
+                        <li>Unused items in original packaging</li>
+                        <li>Items with all tags and labels attached</li>
+                        <li>Items in resalable condition</li>
+                        <li>Proof of purchase (order number)</li>
+                    </ul>
+                    
+                    <h4 class="fw-bold mt-4 mb-3" style="color: #2c3e50; font-size: 1.1rem;">Non-Returnable Items:</h4>
+                    <ul style="color: #2c3e50; line-height: 1.8;">
+                        <li>Used or worn footwear</li>
+                        <li>Items without original packaging or tags</li>
+                        <li>Customized or personalized items</li>
+                        <li>Items marked as final sale</li>
+                    </ul>
+                    
+                    <h3 class="fw-bold mt-5 mb-3" style="color: #e74c3c;">Refund Timeline</h3>
+                    <p style="color: #2c3e50; line-height: 1.8;">Once we receive your return, we will inspect it and process your refund within 5-7 business days. The refund will be credited to your original payment method.</p>
+                </div>
+            </div>
+            
+            <!-- Return Request Form (Only for logged-in users) -->
+            <div class="card shadow-sm border-0" id="returnFormCard" style="display: none;">
+                <div class="card-body p-5">
+                    <h2 class="fw-bold mb-4" style="color: #2c3e50;">Submit a Return Request</h2>
+                    
+                    <form id="returnForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="orderNumber" class="form-label fw-bold">Order Number <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="orderNumber" required placeholder="e.g., ORD-20250104-001">
+                                <small class="text-muted">You can find this in your order confirmation email</small>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label fw-bold">Email Address <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email" required readonly>
+                            </div>
+                            
+                            <div class="col-12 mb-3">
+                                <label for="itemsToReturn" class="form-label fw-bold">Items to Return <span class="text-danger">*</span></label>
+                                <div id="orderItemsContainer" class="mb-3">
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle me-2"></i>Please enter your order number first to load items
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12 mb-3">
+                                <label for="returnReason" class="form-label fw-bold">Reason for Return <span class="text-danger">*</span></label>
+                                <select class="form-select" id="returnReason" required>
+                                    <option value="">Select a reason...</option>
+                                    <option value="wrong_size">Wrong Size</option>
+                                    <option value="not_as_described">Not as Described</option>
+                                    <option value="defective">Defective/Damaged</option>
+                                    <option value="changed_mind">Changed Mind</option>
+                                    <option value="quality_issues">Quality Issues</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-12 mb-3">
+                                <label for="additionalComments" class="form-label fw-bold">Additional Comments</label>
+                                <textarea class="form-control" id="additionalComments" rows="4" placeholder="Please provide any additional details about your return..."></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-success d-none" id="successMessage"></div>
+                        <div class="alert alert-danger d-none" id="errorMessage"></div>
+                        
+                        <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #e74c3c, #c0392b); border: none;" id="submitReturnBtn">
+                            <span class="spinner-border spinner-border-sm d-none" id="submitSpinner"></span>
+                            Submit Return Request
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Login Prompt for Guests -->
+            <div class="card shadow-sm border-0" id="loginPromptCard">
+                <div class="card-body p-5 text-center">
+                    <i class="bi bi-box-arrow-in-right" style="font-size: 4rem; color: #e74c3c;"></i>
+                    <h3 class="fw-bold mt-4 mb-3" style="color: #2c3e50;">Please Sign In to Submit a Return</h3>
+                    <p style="color: #7f8c8d;">You need to be logged in to submit a return request.</p>
+                    <a href="/login/" class="btn btn-primary mt-3" style="background: linear-gradient(135deg, #e74c3c, #c0392b); border: none;">
+                        Sign In <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <a href="/" class="btn btn-outline-primary" style="border-color: #2c3e50; color: #2c3e50;">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/auth.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const isAuth = typeof Auth !== 'undefined' && Auth.isAuthenticated();
+        
+        if (isAuth) {
+            document.getElementById('returnFormCard').style.display = 'block';
+            document.getElementById('loginPromptCard').style.display = 'none';
+            
+            // Load user email
+            Auth.getUserData().then(userData => {
+                if (userData) {
+                    document.getElementById('email').value = userData.email;
+                }
+            });
+        } else {
+            document.getElementById('returnFormCard').style.display = 'none';
+            document.getElementById('loginPromptCard').style.display = 'block';
+        }
+    });
+    
+    // Load order items when order number is entered
+    let orderData = null;
+    document.getElementById('orderNumber')?.addEventListener('blur', async function() {
+        const orderNumber = this.value.trim();
+        if (!orderNumber) return;
+        
+        try {
+            const response = await Auth.fetch(`/api/orders/?search=${orderNumber}`);
+            const data = await response.json();
+            
+            const orders = data.results || data;
+            const order = orders.find(o => o.order_number === orderNumber);
+            
+            if (order && order.status === 'delivered') {
+                orderData = order;
+                displayOrderItems(order);
+            } else if (order && order.status !== 'delivered') {
+                document.getElementById('orderItemsContainer').innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>This order has not been delivered yet. You can only return delivered orders.
+                    </div>
+                `;
+            } else {
+                document.getElementById('orderItemsContainer').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="bi bi-x-circle me-2"></i>Order not found or not associated with your account.
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Error loading order:', error);
+            document.getElementById('orderItemsContainer').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-x-circle me-2"></i>Failed to load order. Please check the order number and try again.
+                </div>
+            `;
+        }
+    });
+    
+    function displayOrderItems(order) {
+        const html = `
+            <div class="border rounded p-3" style="background-color: #f8f9fa;">
+                <h6 class="fw-bold mb-3">Order Items (Select items to return):</h6>
+                ${order.items.map((item, index) => `
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" value="${item.product.id}" id="item_${index}" name="returnItems">
+                        <label class="form-check-label" for="item_${index}">
+                            <strong>${item.product.name}</strong> - Quantity: ${item.quantity} - $${item.price}
+                        </label>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        document.getElementById('orderItemsContainer').innerHTML = html;
+    }
+    
+    // Handle return form submission
+    document.getElementById('returnForm')?.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const submitBtn = document.getElementById('submitReturnBtn');
+        const spinner = document.getElementById('submitSpinner');
+        const successMsg = document.getElementById('successMessage');
+        const errorMsg = document.getElementById('errorMessage');
+        
+        // Get selected items
+        const selectedItems = Array.from(document.querySelectorAll('input[name="returnItems"]:checked'))
+            .map(cb => cb.value);
+        
+        if (selectedItems.length === 0) {
+            errorMsg.textContent = 'Please select at least one item to return.';
+            errorMsg.classList.remove('d-none');
+            return;
+        }
+        
+        submitBtn.disabled = true;
+        spinner.classList.remove('d-none');
+        successMsg.classList.add('d-none');
+        errorMsg.classList.add('d-none');
+        
+        const returnData = {
+            order_number: document.getElementById('orderNumber').value,
+            items: selectedItems,
+            reason: document.getElementById('returnReason').value,
+            comments: document.getElementById('additionalComments').value
+        };
+        
+        try {
+            // For now, we'll just show success (in production, this would call an API)
+            // const response = await Auth.fetch('/api/returns/', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(returnData)
+            // });
+            
+            // Simulate success
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            successMsg.textContent = 'Your return request has been submitted successfully! Our team will review it and contact you within 24-48 hours.';
+            successMsg.classList.remove('d-none');
+            
+            this.reset();
+            document.getElementById('orderItemsContainer').innerHTML = `
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>Please enter your order number first to load items
+                </div>
+            `;
+            
+            // Scroll to success message
+            successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } catch (error) {
+            console.error('Error submitting return:', error);
+            errorMsg.textContent = 'Failed to submit return request. Please try again later.';
+            errorMsg.classList.remove('d-none');
+        } finally {
+            submitBtn.disabled = false;
+            spinner.classList.add('d-none');
+        }
+    });
+</script>
+{% endblock %}
+

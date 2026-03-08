@@ -1,0 +1,570 @@
+{% extends 'base.html' %}
+
+{% block title %}Your Cart — Fleeto{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ── PAGE HEADER ─────────────────────────────── */
+    .cart-header {
+        background: var(--charcoal);
+        padding: 48px 0 40px;
+        position: relative;
+    }
+
+    .cart-header::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at 20% 50%, rgba(200,169,110,0.09) 0%, transparent 55%);
+        pointer-events: none;
+    }
+
+    .cart-header-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .cart-header h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(1.75rem, 3vw, 2.5rem);
+        font-weight: 700;
+        color: #fff;
+        margin: 0;
+    }
+
+    /* ── CART PAGE ───────────────────────────────── */
+    .cart-page {
+        background: var(--bg-cream);
+        padding: 3rem 0 5rem;
+    }
+
+    /* ── CART ITEM CARD ──────────────────────────── */
+    .cart-items-wrap {
+        background: #fff;
+        border: 1px solid var(--border);
+    }
+
+    .cart-items-header {
+        background: var(--surface);
+        padding: 14px 24px;
+        border-bottom: 1px solid var(--border);
+        display: grid;
+        grid-template-columns: 1fr 100px 120px 100px 40px;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .cart-items-header span {
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+    }
+
+    .cart-item {
+        display: grid;
+        grid-template-columns: 1fr 100px 120px 100px 40px;
+        gap: 1rem;
+        align-items: center;
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border);
+        transition: background 0.2s ease;
+    }
+
+    .cart-item:last-child {
+        border-bottom: none;
+    }
+
+    .cart-item:hover {
+        background: var(--bg-cream);
+    }
+
+    .cart-item-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .cart-item-img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border: 1px solid var(--border);
+        flex-shrink: 0;
+        background: var(--surface);
+    }
+
+    .cart-item-name {
+        font-size: 0.92rem;
+        font-weight: 600;
+        color: var(--charcoal);
+        line-height: 1.35;
+        margin-bottom: 0.2rem;
+    }
+
+    .cart-item-unit-price {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+    }
+
+    .cart-item-qty {
+        display: flex;
+        align-items: center;
+        border: 1.5px solid var(--border);
+        background: #fff;
+        width: fit-content;
+    }
+
+    .cart-qty-btn {
+        width: 30px;
+        height: 30px;
+        background: transparent;
+        border: none;
+        color: var(--charcoal);
+        font-size: 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .cart-qty-btn:hover {
+        background: var(--surface);
+        color: var(--gold-dark);
+    }
+
+    .cart-qty-val {
+        width: 34px;
+        text-align: center;
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: var(--charcoal);
+        border-left: 1.5px solid var(--border);
+        border-right: 1.5px solid var(--border);
+        height: 30px;
+        line-height: 30px;
+    }
+
+    .cart-item-total {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--gold-dark);
+    }
+
+    .cart-remove-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        cursor: pointer;
+        padding: 4px;
+        transition: color 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .cart-remove-btn:hover {
+        color: var(--coral);
+    }
+
+    /* ── ORDER SUMMARY CARD ──────────────────────── */
+    .order-summary-card {
+        background: var(--charcoal);
+        padding: 2rem;
+        position: sticky;
+        top: 90px;
+    }
+
+    .order-summary-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .order-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.85rem;
+    }
+
+    .order-row-label {
+        font-size: 0.85rem;
+        color: rgba(255,255,255,0.6);
+    }
+
+    .order-row-value {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: rgba(255,255,255,0.85);
+    }
+
+    .order-total-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        margin-top: 0.5rem;
+        border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .order-total-label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.5);
+    }
+
+    .order-total-value {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--gold);
+    }
+
+    .btn-checkout {
+        display: block;
+        width: 100%;
+        background: var(--gold);
+        color: var(--charcoal);
+        border: 2px solid var(--gold);
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 16px;
+        text-align: center;
+        text-decoration: none;
+        margin-top: 1.5rem;
+        border-radius: 0;
+        transition: all 0.3s ease;
+    }
+
+    .btn-checkout:hover {
+        background: transparent;
+        color: var(--gold);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(200,169,110,0.25);
+    }
+
+    .btn-continue-shopping {
+        display: block;
+        width: 100%;
+        background: transparent;
+        color: rgba(255,255,255,0.5);
+        border: 1.5px solid rgba(255,255,255,0.15);
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 13px;
+        text-align: center;
+        text-decoration: none;
+        margin-top: 10px;
+        border-radius: 0;
+        transition: all 0.3s ease;
+    }
+
+    .btn-continue-shopping:hover {
+        border-color: rgba(255,255,255,0.4);
+        color: rgba(255,255,255,0.8);
+    }
+
+    /* ── EMPTY / AUTH STATES ─────────────────────── */
+    .cart-empty-state {
+        background: #fff;
+        border: 1px solid var(--border);
+        text-align: center;
+        padding: 5rem 2rem;
+    }
+
+    .cart-empty-icon {
+        font-size: 5rem;
+        color: var(--border);
+        margin-bottom: 1.5rem;
+        display: block;
+    }
+
+    .cart-empty-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--charcoal);
+        margin-bottom: 0.75rem;
+    }
+
+    .cart-empty-sub {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+    }
+
+    .btn-shop-now {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--charcoal);
+        color: #fff;
+        border: 2px solid var(--charcoal);
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 14px 32px;
+        text-decoration: none;
+        border-radius: 0;
+        transition: all 0.3s ease;
+    }
+
+    .btn-shop-now:hover {
+        background: var(--gold);
+        border-color: var(--gold);
+        color: var(--charcoal);
+    }
+
+    /* ── MOBILE ──────────────────────────────────── */
+    @media (max-width: 768px) {
+        .cart-items-header {
+            display: none;
+        }
+
+        .cart-item {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+
+        .cart-item-total,
+        .cart-item-qty,
+        .cart-remove-btn {
+            justify-self: start;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Cart Header -->
+<div class="cart-header">
+    <div class="container">
+        <span class="cart-header-label">Shopping Bag</span>
+        <h1>Your Cart</h1>
+    </div>
+</div>
+
+<!-- Cart Content -->
+<div class="cart-page">
+    <div class="container">
+        <div id="cartContent">
+            <div class="text-center py-5">
+                <div class="spinner-border" role="status" style="color:var(--gold)!important;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/auth.js"></script>
+<script>
+    // Load cart contents
+    function loadCart() {
+        if (!Auth.isAuthenticated()) {
+            document.getElementById('cartContent').innerHTML = `
+                <div class="cart-empty-state">
+                    <i class="bi bi-lock cart-empty-icon"></i>
+                    <div class="cart-empty-title">Sign In to View Cart</div>
+                    <p class="cart-empty-sub">You need to be logged in to access your shopping bag.</p>
+                    <a href="/login/" class="btn-shop-now"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                </div>
+            `;
+            return;
+        }
+
+        Auth.fetch('/api/cart/')
+            .then(response => {
+                if (response.status === 401) {
+                    Auth.clearTokens();
+                    document.getElementById('cartContent').innerHTML = `
+                        <div class="cart-empty-state">
+                            <i class="bi bi-lock cart-empty-icon"></i>
+                            <div class="cart-empty-title">Sign In to View Cart</div>
+                            <p class="cart-empty-sub">You need to be logged in to access your shopping bag.</p>
+                            <a href="/login/" class="btn-shop-now"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                        </div>
+                    `;
+                    return null;
+                }
+                if (!response.ok) {
+                    throw new Error('Failed to load cart');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) return;
+
+                if (data && data.items && data.items.length > 0) {
+                    let html = `
+                        <div class="row g-4">
+                            <div class="col-lg-8">
+                                <div class="cart-items-wrap" data-aos="fade-up">
+                                    <div class="cart-items-header">
+                                        <span>Product</span>
+                                        <span>Price</span>
+                                        <span>Quantity</span>
+                                        <span>Total</span>
+                                        <span></span>
+                                    </div>
+                                    ${data.items.map(item => `
+                                        <div class="cart-item">
+                                            <div class="cart-item-info">
+                                                <img src="${item.product.primary_image || '/static/img/placeholder.jpg'}"
+                                                     class="cart-item-img"
+                                                     alt="${item.product.name}">
+                                                <div>
+                                                    <div class="cart-item-name">${item.product.name}</div>
+                                                    <div class="cart-item-unit-price">$${item.unit_price} each</div>
+                                                </div>
+                                            </div>
+                                            <div class="cart-item-unit-price" style="font-weight:600; color:var(--charcoal);">$${item.unit_price}</div>
+                                            <div>
+                                                <div class="cart-item-qty">
+                                                    <button class="cart-qty-btn" onclick="updateQuantity(${item.id}, ${item.quantity - 1})">
+                                                        <i class="bi bi-dash"></i>
+                                                    </button>
+                                                    <div class="cart-qty-val">${item.quantity}</div>
+                                                    <button class="cart-qty-btn" onclick="updateQuantity(${item.id}, ${item.quantity + 1})">
+                                                        <i class="bi bi-plus"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="cart-item-total">$${item.total_price}</div>
+                                            <button class="cart-remove-btn" onclick="removeItem(${item.id})" title="Remove">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            <div class="col-lg-4" data-aos="fade-left">
+                                <div class="order-summary-card">
+                                    <div class="order-summary-title">Order Summary</div>
+                                    <div class="order-row">
+                                        <span class="order-row-label">Subtotal</span>
+                                        <span class="order-row-value">$${data.subtotal}</span>
+                                    </div>
+                                    <div class="order-row">
+                                        <span class="order-row-label">Shipping</span>
+                                        <span class="order-row-value" style="color:var(--gold);">Calculated at checkout</span>
+                                    </div>
+                                    <div class="order-total-row">
+                                        <span class="order-total-label">Total</span>
+                                        <span class="order-total-value">$${data.total}</span>
+                                    </div>
+                                    <a href="/checkout/" class="btn-checkout">
+                                        Proceed to Checkout <i class="bi bi-arrow-right ms-2"></i>
+                                    </a>
+                                    <a href="/products/" class="btn-continue-shopping">
+                                        Continue Shopping
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('cartContent').innerHTML = html;
+                    if (typeof AOS !== 'undefined') AOS.refresh();
+                } else {
+                    document.getElementById('cartContent').innerHTML = `
+                        <div class="cart-empty-state">
+                            <i class="bi bi-bag cart-empty-icon"></i>
+                            <div class="cart-empty-title">Your Cart is Empty</div>
+                            <p class="cart-empty-sub">Looks like you haven't added anything to your bag yet.</p>
+                            <a href="/products/" class="btn-shop-now">
+                                <i class="bi bi-arrow-right"></i> Start Shopping
+                            </a>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Cart error:', error);
+                document.getElementById('cartContent').innerHTML = `
+                    <div class="cart-empty-state">
+                        <i class="bi bi-exclamation-circle cart-empty-icon" style="color:var(--coral);"></i>
+                        <div class="cart-empty-title">Something Went Wrong</div>
+                        <p class="cart-empty-sub">${error.message || 'An error occurred while loading your cart.'}</p>
+                        <button class="btn-shop-now" onclick="loadCart()">
+                            <i class="bi bi-arrow-repeat"></i> Retry
+                        </button>
+                    </div>
+                `;
+            });
+    }
+
+    // Update quantity
+    function updateQuantity(itemId, newQuantity) {
+        if (newQuantity < 1) {
+            removeItem(itemId);
+            return;
+        }
+
+        Auth.fetch(`/api/cart/items/${itemId}/update/`, {
+            method: 'PUT',
+            body: JSON.stringify({ quantity: newQuantity })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                loadCart();
+                Auth.updateCartCount();
+            }
+        })
+        .catch(error => {
+            console.error('Error updating quantity:', error);
+            alert('Failed to update quantity. Please try again.');
+        });
+    }
+
+    // Remove item
+    function removeItem(itemId) {
+        if (!confirm('Are you sure you want to remove this item?')) {
+            return;
+        }
+
+        Auth.fetch(`/api/cart/items/${itemId}/remove/`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                loadCart();
+                Auth.updateCartCount();
+            }
+        })
+        .catch(error => {
+            console.error('Error removing item:', error);
+            alert('Failed to remove item. Please try again.');
+        });
+    }
+
+    // Load cart on page load
+    loadCart();
+</script>
+{% endblock %}

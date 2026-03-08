@@ -1,0 +1,770 @@
+{% extends 'base.html' %}
+
+{% block title %}Our Collection — Fleeto{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ── PAGE HEADER ─────────────────────────────── */
+    .collection-header {
+        background: var(--charcoal);
+        padding: 64px 0 56px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .collection-header::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at 80% 50%, rgba(200,169,110,0.1) 0%, transparent 55%);
+        pointer-events: none;
+    }
+
+    .collection-header-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+
+    .collection-header h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 700;
+        color: #fff;
+        margin: 0;
+    }
+
+    /* ── FILTER SIDEBAR ──────────────────────────── */
+    .filter-sidebar {
+        background: #fff;
+        border: 1px solid var(--border);
+        padding: 28px;
+    }
+
+    .filter-sidebar-title {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--charcoal);
+        margin-bottom: 1.75rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .filter-group-title {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--charcoal);
+        margin-bottom: 1rem;
+    }
+
+    .filter-group {
+        margin-bottom: 1.75rem;
+        padding-bottom: 1.75rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .filter-group:last-of-type {
+        border-bottom: none;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-check-input:checked {
+        background-color: var(--charcoal);
+        border-color: var(--charcoal);
+    }
+
+    .form-check-input:checked[type="checkbox"] {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23C8A96E' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+    }
+
+    .form-check-input:focus {
+        box-shadow: 0 0 0 3px rgba(200,169,110,0.2);
+        border-color: var(--gold);
+    }
+
+    .form-check-label {
+        font-size: 0.85rem;
+        color: var(--text);
+        cursor: pointer;
+    }
+
+    .price-inputs {
+        display: flex;
+        gap: 8px;
+    }
+
+    .price-inputs .form-control {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        border-radius: 0;
+        border: 1.5px solid var(--border);
+    }
+
+    .btn-apply-filters {
+        width: 100%;
+        background: var(--charcoal);
+        color: #fff;
+        border: 2px solid var(--charcoal);
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 12px;
+        border-radius: 0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-apply-filters:hover {
+        background: var(--gold);
+        border-color: var(--gold);
+        color: var(--charcoal);
+    }
+
+    .btn-clear-filters {
+        width: 100%;
+        background: transparent;
+        color: var(--text-muted);
+        border: 1.5px solid var(--border);
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 11px;
+        border-radius: 0;
+        cursor: pointer;
+        margin-top: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-clear-filters:hover {
+        border-color: var(--charcoal);
+        color: var(--charcoal);
+    }
+
+    /* ── TOOLBAR ─────────────────────────────────── */
+    .products-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.75rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .product-count-label {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    .sort-select {
+        border: 1.5px solid var(--border);
+        border-radius: 0;
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--charcoal);
+        padding: 8px 14px;
+        background: #fff;
+        min-width: 200px;
+    }
+
+    .sort-select:focus {
+        border-color: var(--gold);
+        box-shadow: 0 0 0 3px rgba(200,169,110,0.15);
+        outline: none;
+    }
+
+    /* ── PRODUCT CARDS ───────────────────────────── */
+    .pl-product-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .pl-product-card:hover {
+        box-shadow: 0 20px 56px rgba(0,0,0,0.1);
+        transform: translateY(-5px);
+        border-color: rgba(200,169,110,0.4);
+    }
+
+    .pl-img-wrap {
+        position: relative;
+        overflow: hidden;
+        background: var(--surface);
+        flex-shrink: 0;
+    }
+
+    .pl-img-wrap img {
+        width: 100%;
+        height: 260px;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.55s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+
+    .pl-product-card:hover .pl-img-wrap img {
+        transform: scale(1.07);
+    }
+
+    .pl-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(15,15,15,0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.35s ease;
+    }
+
+    .pl-product-card:hover .pl-overlay {
+        opacity: 1;
+    }
+
+    .pl-quick-add {
+        background: var(--gold);
+        color: var(--charcoal);
+        border: none;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 12px 24px;
+        cursor: pointer;
+        transform: translateY(10px);
+        transition: all 0.3s ease;
+    }
+
+    .pl-product-card:hover .pl-quick-add {
+        transform: translateY(0);
+    }
+
+    .pl-quick-add:hover {
+        background: var(--charcoal);
+        color: var(--gold);
+    }
+
+    .pl-badge {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 4px 10px;
+        z-index: 2;
+    }
+
+    .pl-badge-new { background: var(--charcoal); color: var(--gold); }
+    .pl-badge-sale { background: var(--coral); color: #fff; }
+
+    .pl-product-body {
+        padding: 18px 20px 22px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .pl-category {
+        font-size: 0.67rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 0.3rem;
+    }
+
+    .pl-product-name {
+        font-size: 0.92rem;
+        font-weight: 600;
+        color: var(--charcoal);
+        margin-bottom: 0.4rem;
+        line-height: 1.35;
+    }
+
+    .pl-product-name a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .pl-product-name a:hover {
+        color: var(--gold-dark);
+    }
+
+    .pl-rating {
+        color: var(--gold);
+        font-size: 0.78rem;
+        margin-bottom: 0.6rem;
+    }
+
+    .pl-desc {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        line-height: 1.55;
+        margin-bottom: 1rem;
+        flex-grow: 1;
+    }
+
+    .pl-price-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.85rem;
+    }
+
+    .pl-price {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--gold-dark);
+    }
+
+    .pl-compare-price {
+        text-decoration: line-through;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        margin-left: 6px;
+    }
+
+    .pl-discount {
+        background: var(--coral);
+        color: #fff;
+        font-size: 0.68rem;
+        font-weight: 700;
+        padding: 3px 7px;
+    }
+
+    .pl-add-btn {
+        width: 100%;
+        background: var(--charcoal);
+        color: #fff;
+        border: 2px solid var(--charcoal);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 11px;
+        border-radius: 0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .pl-add-btn:hover {
+        background: var(--gold);
+        border-color: var(--gold);
+        color: var(--charcoal);
+    }
+
+    /* Empty / Error States */
+    .empty-state {
+        text-align: center;
+        padding: 5rem 2rem;
+        color: var(--text-muted);
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--border);
+        margin-bottom: 1.25rem;
+        display: block;
+    }
+
+    /* Pagination */
+    .pagination {
+        gap: 4px;
+    }
+
+    .page-link {
+        border-radius: 0 !important;
+        border: 1.5px solid var(--border);
+        color: var(--charcoal);
+        font-size: 0.85rem;
+        font-weight: 500;
+        padding: 8px 14px;
+    }
+
+    .page-link:hover {
+        background: var(--gold);
+        border-color: var(--gold);
+        color: var(--charcoal);
+    }
+
+    .page-item.active .page-link {
+        background: var(--charcoal);
+        border-color: var(--charcoal);
+        color: var(--gold);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Collection Header -->
+<div class="collection-header">
+    <div class="container">
+        <span class="collection-header-label">Explore the range</span>
+        <h1>Our Collection</h1>
+    </div>
+</div>
+
+<!-- Products Layout -->
+<div class="container py-5">
+    <div class="row g-4">
+
+        <!-- Filter Sidebar -->
+        <div class="col-lg-3 mb-2">
+            <div class="filter-sidebar" data-aos="fade-right">
+                <div class="filter-sidebar-title">Refine</div>
+
+                <!-- Price Range -->
+                <div class="filter-group">
+                    <div class="filter-group-title">Price Range</div>
+                    <div class="price-inputs">
+                        <input type="number" class="form-control" placeholder="Min $" id="minPrice">
+                        <input type="number" class="form-control" placeholder="Max $" id="maxPrice">
+                    </div>
+                </div>
+
+                <!-- Categories -->
+                <div class="filter-group">
+                    <div class="filter-group-title">Categories</div>
+                    <div id="categoryFilters">
+                        <div class="spinner-border spinner-border-sm" role="status" style="color:var(--gold)!important;"></div>
+                    </div>
+                </div>
+
+                <!-- Brands -->
+                <div class="filter-group">
+                    <div class="filter-group-title">Brands</div>
+                    <div id="brandFilters">
+                        <div class="spinner-border spinner-border-sm" role="status" style="color:var(--gold)!important;"></div>
+                    </div>
+                </div>
+
+                <!-- Features -->
+                <div class="filter-group">
+                    <div class="filter-group-title">Filter By</div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="featured">
+                        <label class="form-check-label" for="featured">Featured</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="new">
+                        <label class="form-check-label" for="new">New Arrivals</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="sale">
+                        <label class="form-check-label" for="sale">On Sale</label>
+                    </div>
+                </div>
+
+                <button class="btn-apply-filters" onclick="applyFilters()">Apply Filters</button>
+                <button class="btn-clear-filters" onclick="clearFilters()">Clear All</button>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="col-lg-9">
+            <!-- Toolbar -->
+            <div class="products-toolbar" data-aos="fade-down">
+                <span id="productCount" class="product-count-label">Loading products...</span>
+                <select class="sort-select form-select" id="sortBy" onchange="loadProducts()">
+                    <option value="-created_at">Newest First</option>
+                    <option value="price">Price: Low to High</option>
+                    <option value="-price">Price: High to Low</option>
+                    <option value="name">Name: A to Z</option>
+                    <option value="-sales_count">Most Popular</option>
+                </select>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="row g-4" id="productsContainer">
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border" role="status" style="color:var(--gold)!important;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <nav aria-label="Page navigation" id="paginationContainer" class="mt-5">
+                <!-- Pagination inserted here -->
+            </nav>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let currentPage = 1;
+
+    // Load products
+    function loadProducts() {
+        const container = document.getElementById('productsContainer');
+        const sortBy = document.getElementById('sortBy');
+        const sortByValue = sortBy ? sortBy.value : '-created_at';
+
+        // Show loading state
+        container.innerHTML = `
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border" role="status" style="color:var(--gold)!important;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        `;
+
+        const params = new URLSearchParams(window.location.search);
+        params.set('ordering', sortByValue);
+        params.set('page', currentPage);
+
+        fetch(`/api/products/?${params.toString()}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Products API response:', data);
+
+                // Handle paginated response (DRF format)
+                if (data && data.results && Array.isArray(data.results)) {
+                    displayProducts(data.results);
+                    updateProductCount(data.count || data.results.length);
+                    updatePagination(data);
+                }
+                // Handle non-paginated array response
+                else if (Array.isArray(data)) {
+                    displayProducts(data);
+                    updateProductCount(data.length);
+                    updatePagination({ count: data.length });
+                }
+                // Empty or invalid response
+                else {
+                    console.warn('Unexpected API response format:', data);
+                    displayProducts([]);
+                    updateProductCount(0);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading products:', error);
+                container.innerHTML = `
+                    <div class="col-12">
+                        <div class="empty-state">
+                            <i class="bi bi-exclamation-circle"></i>
+                            <p style="color:var(--coral); font-weight:600; margin-bottom:0.5rem;">Error loading products</p>
+                            <p style="font-size:0.85rem;">${error.message}</p>
+                            <button class="btn-apply-filters mt-3" style="display:inline-block; width:auto; padding:12px 32px;" onclick="loadProducts()">Retry</button>
+                        </div>
+                    </div>
+                `;
+            });
+    }
+
+    // Display products
+    function displayProducts(products) {
+        const container = document.getElementById('productsContainer');
+        if (products.length > 0) {
+            container.innerHTML = products.map((product, i) => `
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="${(i % 3) * 60}">
+                    <div class="pl-product-card">
+                        <div class="pl-img-wrap">
+                            <img src="${product.primary_image || 'data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27400%27%20height%3D%27300%27%3E%3Crect%20fill%3D%27%23F2EFE8%27%20width%3D%27400%27%20height%3D%27300%27/%3E%3C/svg%3E'}"
+                                 alt="${product.name || 'Product'}"
+                                 onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27400%27%20height%3D%27300%27%3E%3Crect%20fill%3D%27%23F2EFE8%27%20width%3D%27400%27%20height%3D%27300%27/%3E%3C/svg%3E';">
+                            ${product.is_new ? '<span class="pl-badge pl-badge-new">New</span>' : ''}
+                            ${product.is_on_sale && !product.is_new ? '<span class="pl-badge pl-badge-sale">Sale</span>' : ''}
+                            <div class="pl-overlay">
+                                <button class="pl-quick-add" onclick="addToCart(${product.id})">
+                                    <i class="bi bi-bag-plus me-2"></i>Quick Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="pl-product-body">
+                            <div class="pl-category">${product.category_name || 'Footwear'}</div>
+                            <div class="pl-product-name">
+                                <a href="/products/${product.slug}/">${product.name}</a>
+                            </div>
+                            ${product.average_rating > 0 ? `
+                                <div class="pl-rating">
+                                    ${'<i class="bi bi-star-fill"></i>'.repeat(Math.floor(product.average_rating))}
+                                    <small style="color:var(--text-muted); margin-left:4px;">(${product.average_rating})</small>
+                                </div>` : ''}
+                            <p class="pl-desc">${product.short_description || ''}</p>
+                            <div class="pl-price-row">
+                                <div>
+                                    <span class="pl-price">$${product.price}</span>
+                                    ${product.compare_at_price ? `<span class="pl-compare-price">$${product.compare_at_price}</span>` : ''}
+                                </div>
+                                ${product.discount_percentage > 0 ? `<span class="pl-discount">-${product.discount_percentage}%</span>` : ''}
+                            </div>
+                            <button class="pl-add-btn" onclick="addToCart(${product.id})">
+                                <i class="bi bi-bag-plus me-2"></i>Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            // Re-init AOS for newly injected elements
+            if (typeof AOS !== 'undefined') AOS.refresh();
+        } else {
+            container.innerHTML = `
+                <div class="col-12">
+                    <div class="empty-state">
+                        <i class="bi bi-search"></i>
+                        <p style="font-size:1rem; font-weight:600; color:var(--charcoal); margin-bottom:0.5rem;">No products found</p>
+                        <p style="font-size:0.85rem;">Try adjusting your filters or browse all products.</p>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    // Update product count
+    function updateProductCount(count) {
+        document.getElementById('productCount').textContent = `${count} product${count !== 1 ? 's' : ''} found`;
+    }
+
+    // Update pagination
+    function updatePagination(data) {
+        const container = document.getElementById('paginationContainer');
+        if (data.count <= 20) {
+            container.innerHTML = '';
+            return;
+        }
+
+        const totalPages = Math.ceil(data.count / 20);
+        let html = '<ul class="pagination justify-content-center">';
+
+        for (let i = 1; i <= totalPages; i++) {
+            html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+                <a class="page-link" href="#" onclick="changePage(${i}); return false;">${i}</a>
+            </li>`;
+        }
+
+        html += '</ul>';
+        container.innerHTML = html;
+    }
+
+    // Change page
+    function changePage(page) {
+        currentPage = page;
+        loadProducts();
+        window.scrollTo(0, 0);
+    }
+
+    // Load filters
+    fetch('/api/products/filters/')
+        .then(response => response.json())
+        .then(data => {
+            // Categories
+            document.getElementById('categoryFilters').innerHTML = data.categories.map(cat => `
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" value="${cat.slug}" id="cat_${cat.id}">
+                    <label class="form-check-label" for="cat_${cat.id}">
+                        ${cat.name} (${cat.product_count})
+                    </label>
+                </div>
+            `).join('');
+
+            // Brands
+            document.getElementById('brandFilters').innerHTML = data.brands.map(brand => `
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" value="${brand.slug}" id="brand_${brand.id}">
+                    <label class="form-check-label" for="brand_${brand.id}">
+                        ${brand.name} (${brand.product_count})
+                    </label>
+                </div>
+            `).join('');
+        });
+
+    // Apply filters
+    function applyFilters() {
+        const params = new URLSearchParams();
+
+        // Price range
+        const minPrice = document.getElementById('minPrice').value;
+        const maxPrice = document.getElementById('maxPrice').value;
+        if (minPrice) params.set('min_price', minPrice);
+        if (maxPrice) params.set('max_price', maxPrice);
+
+        // Add other filters...
+        // Then reload products with new params
+        window.location.search = params.toString();
+    }
+
+    // Clear filters
+    function clearFilters() {
+        window.location.href = '/products/';
+    }
+
+    // Add to cart
+    function addToCart(productId) {
+        if (typeof Auth === 'undefined') {
+            if (confirm('Please login to add items to cart. Would you like to login now?')) {
+                window.location.href = '/login/';
+            }
+            return;
+        }
+
+        if (!Auth.isAuthenticated()) {
+            if (confirm('Please login to add items to cart. Would you like to login now?')) {
+                window.location.href = '/login/';
+            }
+            return;
+        }
+
+        Auth.fetch('/api/cart/add/', {
+            method: 'POST',
+            body: JSON.stringify({
+                product_id: productId,
+                quantity: 1
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message || data.cart) {
+                alert('Product added to cart successfully!');
+                Auth.updateCartCount();
+            } else if (data.error) {
+                alert(data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to add item to cart. Please try again.');
+        });
+    }
+
+    // Initial load when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Product list page loaded, fetching products...');
+            loadProducts();
+        });
+    } else {
+        // DOM is already ready
+        console.log('DOM already ready, fetching products...');
+        loadProducts();
+    }
+</script>
+{% endblock %}

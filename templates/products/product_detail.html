@@ -1,0 +1,858 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }} — Fleeto{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ── PAGE WRAP ───────────────────────────────── */
+    .detail-page {
+        background: var(--bg-cream);
+        padding-bottom: 80px;
+    }
+
+    /* ── BREADCRUMB ──────────────────────────────── */
+    .detail-breadcrumb {
+        background: #fff;
+        border-bottom: 1px solid var(--border);
+        padding: 14px 0;
+    }
+
+    .breadcrumb {
+        margin: 0;
+        font-size: 0.78rem;
+        font-weight: 500;
+        color: var(--text-muted);
+    }
+
+    .breadcrumb-item a {
+        color: var(--text-muted);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .breadcrumb-item a:hover {
+        color: var(--gold-dark);
+    }
+
+    .breadcrumb-item.active {
+        color: var(--charcoal);
+        font-weight: 600;
+    }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: '/';
+        color: var(--border);
+    }
+
+    /* ── CAROUSEL ────────────────────────────────── */
+    .product-carousel-wrap {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        overflow: hidden;
+    }
+
+    .product-image {
+        height: 520px;
+        object-fit: contain;
+        background: var(--surface);
+        width: 100%;
+        transition: transform 0.55s ease;
+    }
+
+    .product-carousel-wrap:hover .product-image {
+        transform: scale(1.04);
+    }
+
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 48px;
+        height: 48px;
+        background: var(--charcoal);
+        border-radius: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0.75;
+        transition: all 0.3s ease;
+    }
+
+    .carousel-control-prev { left: 16px; }
+    .carousel-control-next { right: 16px; }
+
+    .carousel-control-prev:hover,
+    .carousel-control-next:hover {
+        opacity: 1;
+        background: var(--gold);
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* ── PRODUCT INFO ────────────────────────────── */
+    .product-info-col {
+        padding-left: 2rem;
+    }
+
+    .product-brand {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 0.6rem;
+        display: block;
+    }
+
+    .product-title {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(1.75rem, 3vw, 2.5rem);
+        font-weight: 700;
+        color: var(--charcoal);
+        line-height: 1.15;
+        margin-bottom: 1.25rem;
+    }
+
+    .product-rating-row {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .product-stars {
+        color: var(--gold);
+        font-size: 0.9rem;
+    }
+
+    .product-rating-text {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    .product-price-block {
+        display: flex;
+        align-items: baseline;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+        padding: 1.25rem 0;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .product-main-price {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--gold-dark);
+        line-height: 1;
+    }
+
+    .product-compare-price {
+        text-decoration: line-through;
+        color: var(--text-muted);
+        font-size: 1.05rem;
+    }
+
+    .product-discount-tag {
+        background: var(--coral);
+        color: #fff;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 4px 10px;
+        letter-spacing: 0.05em;
+    }
+
+    .product-short-desc {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        line-height: 1.75;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Stock badge */
+    .stock-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        padding: 6px 14px;
+        margin-bottom: 1.5rem;
+    }
+
+    .stock-in {
+        background: #F0FAF4;
+        color: #27ae60;
+        border: 1px solid #C3E6CB;
+    }
+
+    .stock-low {
+        background: #FFF8F0;
+        color: var(--gold-dark);
+        border: 1px solid var(--gold);
+    }
+
+    .stock-out {
+        background: #FFF2F1;
+        color: var(--coral);
+        border: 1px solid var(--coral);
+    }
+
+    /* Quantity selector */
+    .qty-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--charcoal);
+        margin-bottom: 0.6rem;
+        display: block;
+    }
+
+    .qty-selector {
+        display: inline-flex;
+        align-items: center;
+        border: 1.5px solid var(--border);
+        background: #fff;
+    }
+
+    .qty-btn {
+        width: 42px;
+        height: 42px;
+        background: transparent;
+        border: none;
+        color: var(--charcoal);
+        font-size: 1.1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.25s ease;
+    }
+
+    .qty-btn:hover {
+        background: var(--surface);
+        color: var(--gold-dark);
+    }
+
+    .qty-input {
+        width: 56px;
+        border: none;
+        border-left: 1.5px solid var(--border);
+        border-right: 1.5px solid var(--border);
+        text-align: center;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--charcoal);
+        padding: 0 8px;
+        height: 42px;
+        background: #fff;
+        -moz-appearance: textfield;
+    }
+
+    .qty-input::-webkit-outer-spin-button,
+    .qty-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+    }
+
+    .qty-input:focus {
+        outline: none;
+    }
+
+    /* CTA Buttons */
+    .cta-group {
+        display: flex;
+        gap: 12px;
+        margin-top: 1.75rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-add-cart {
+        flex: 1;
+        min-width: 200px;
+        background: var(--charcoal);
+        color: #fff;
+        border: 2px solid var(--charcoal);
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 16px 24px;
+        border-radius: 0;
+        cursor: pointer;
+        transition: all 0.35s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-add-cart:hover {
+        background: var(--gold);
+        border-color: var(--gold);
+        color: var(--charcoal);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(200,169,110,0.3);
+    }
+
+    .btn-wishlist {
+        background: transparent;
+        color: var(--charcoal);
+        border: 2px solid var(--border);
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 16px 20px;
+        border-radius: 0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+    }
+
+    .btn-wishlist:hover {
+        border-color: var(--coral);
+        color: var(--coral);
+    }
+
+    /* Product Details Card */
+    .product-details-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        margin-top: 2rem;
+    }
+
+    .product-details-card-header {
+        background: var(--surface);
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--charcoal);
+    }
+
+    .product-details-card table {
+        margin: 0;
+    }
+
+    .product-details-card table td {
+        padding: 12px 24px;
+        font-size: 0.85rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .product-details-card table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .product-details-card table td:first-child {
+        font-weight: 600;
+        color: var(--charcoal);
+        width: 35%;
+        color: var(--text-muted);
+    }
+
+    /* ── TABS ────────────────────────────────────── */
+    .product-tabs-section {
+        margin-top: 4rem;
+    }
+
+    .nav-tabs {
+        border-bottom: 2px solid var(--border);
+        gap: 0;
+    }
+
+    .nav-tabs .nav-link {
+        border: none;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 14px 24px;
+        border-radius: 0;
+        transition: all 0.25s ease;
+    }
+
+    .nav-tabs .nav-link:hover {
+        color: var(--charcoal);
+        border-bottom-color: var(--border);
+        background: transparent;
+    }
+
+    .nav-tabs .nav-link.active {
+        color: var(--charcoal);
+        border-bottom-color: var(--gold);
+        background: transparent;
+        font-weight: 700;
+    }
+
+    .tab-content {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-top: none;
+        padding: 2rem 2.5rem;
+    }
+
+    .tab-pane p {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        line-height: 1.8;
+    }
+
+    .tab-pane table td {
+        font-size: 0.85rem;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .tab-pane table td:first-child {
+        font-weight: 600;
+        color: var(--charcoal);
+        width: 200px;
+    }
+
+    /* ── REVIEW CARDS ────────────────────────────── */
+    .review-card {
+        background: var(--bg-cream);
+        border: 1px solid var(--border);
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .review-card:last-child {
+        margin-bottom: 0;
+    }
+
+    .review-author {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--charcoal);
+    }
+
+    .review-verified {
+        background: #F0FAF4;
+        color: #27ae60;
+        border: 1px solid #C3E6CB;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        padding: 3px 8px;
+        text-transform: uppercase;
+    }
+
+    .review-stars {
+        color: var(--gold);
+        font-size: 0.85rem;
+    }
+
+    .review-empty-star {
+        color: var(--border);
+    }
+
+    .review-title {
+        font-weight: 700;
+        font-size: 0.92rem;
+        color: var(--charcoal);
+        margin: 0.6rem 0 0.4rem;
+    }
+
+    .review-body {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        line-height: 1.7;
+        margin-bottom: 0.5rem;
+    }
+
+    .review-date {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    /* ── RELATED PRODUCTS ─────────────────────────── */
+    .related-section {
+        margin-top: 5rem;
+        padding-top: 3rem;
+        border-top: 1px solid var(--border);
+    }
+
+    .related-heading {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--charcoal);
+        margin-bottom: 2rem;
+    }
+
+    .related-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        transition: all 0.35s ease;
+    }
+
+    .related-card:hover {
+        box-shadow: 0 16px 48px rgba(0,0,0,0.1);
+        transform: translateY(-5px);
+    }
+
+    .related-card img {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.5s ease;
+    }
+
+    .related-card:hover img {
+        transform: scale(1.06);
+    }
+
+    .related-card-body {
+        padding: 16px 18px;
+    }
+
+    .related-card-name {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: var(--charcoal);
+        text-decoration: none;
+        display: block;
+        margin-bottom: 0.4rem;
+        line-height: 1.35;
+    }
+
+    .related-card-name:hover { color: var(--gold-dark); }
+
+    .related-card-price {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--gold-dark);
+    }
+
+    @media (max-width: 991px) {
+        .product-info-col {
+            padding-left: 0;
+            padding-top: 1.5rem;
+        }
+        .product-image {
+            height: 380px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-page">
+
+    <!-- Breadcrumb -->
+    <div class="detail-breadcrumb">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/products/">Products</a></li>
+                    {% if product.category %}
+                    <li class="breadcrumb-item"><a href="/products/?category={{ product.category.slug }}">{{ product.category.name }}</a></li>
+                    {% endif %}
+                    <li class="breadcrumb-item active">{{ product.name }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Product Main -->
+    <div class="container py-5">
+        <div class="row g-5">
+
+            <!-- Images -->
+            <div class="col-lg-6" data-aos="fade-right">
+                <div class="product-carousel-wrap">
+                    <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            {% if product.images.all %}
+                                {% for image in product.images.all %}
+                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                    <img src="{{ image.image.url }}" class="d-block product-image" alt="{{ image.alt_text }}"
+                                         onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27500%27 height=%27500%27%3E%3Crect fill=%27%23F2EFE8%27 width=%27500%27 height=%27500%27/%3E%3C/svg%3E';">
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="carousel-item active">
+                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='500'%3E%3Crect fill='%23F2EFE8' width='500' height='500'/%3E%3C/svg%3E"
+                                         class="d-block product-image" alt="Product image">
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% if product.images.count > 1 %}
+                        <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Info -->
+            <div class="col-lg-6 product-info-col" data-aos="fade-left">
+
+                {% if product.brand %}
+                <span class="product-brand">{{ product.brand.name }}</span>
+                {% endif %}
+
+                <h1 class="product-title">{{ product.name }}</h1>
+
+                <div class="product-rating-row">
+                    <div class="product-stars">
+                        {% for i in "12345" %}
+                            <i class="bi bi-star-fill"></i>
+                        {% endfor %}
+                    </div>
+                    <span class="product-rating-text">{{ product.average_rating }} — {{ product.reviews.count }} reviews</span>
+                </div>
+
+                <div class="product-price-block">
+                    <span class="product-main-price">${{ product.price }}</span>
+                    {% if product.compare_at_price %}
+                    <span class="product-compare-price">${{ product.compare_at_price }}</span>
+                    <span class="product-discount-tag">-{{ product.discount_percentage }}%</span>
+                    {% endif %}
+                </div>
+
+                <p class="product-short-desc">{{ product.short_description }}</p>
+
+                <!-- Stock Status -->
+                {% if product.stock_quantity > 0 %}
+                    <span class="stock-badge stock-in">
+                        <i class="bi bi-check-circle-fill"></i> In Stock ({{ product.stock_quantity }} available)
+                    </span>
+                    {% if product.is_low_stock %}
+                    <span class="stock-badge stock-low ms-2">
+                        <i class="bi bi-exclamation-triangle-fill"></i> Low Stock
+                    </span>
+                    {% endif %}
+                {% else %}
+                    <span class="stock-badge stock-out">
+                        <i class="bi bi-x-circle-fill"></i> Out of Stock
+                    </span>
+                {% endif %}
+
+                <!-- Quantity -->
+                <div class="mt-3">
+                    <span class="qty-label">Quantity</span>
+                    <div class="qty-selector">
+                        <button class="qty-btn" type="button" onclick="changeQuantity(-1)" aria-label="Decrease">
+                            <i class="bi bi-dash"></i>
+                        </button>
+                        <input type="number" class="qty-input" value="1" min="1" max="{{ product.stock_quantity }}" id="quantity" aria-label="Quantity">
+                        <button class="qty-btn" type="button" onclick="changeQuantity(1)" aria-label="Increase">
+                            <i class="bi bi-plus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CTA Buttons -->
+                <div class="cta-group">
+                    <button class="btn-add-cart" onclick="addToCart()">
+                        <i class="bi bi-bag-plus"></i> Add to Cart
+                    </button>
+                    <button class="btn-wishlist" onclick="addToWishlist()">
+                        <i class="bi bi-heart"></i> Wishlist
+                    </button>
+                </div>
+
+                <!-- Product Details -->
+                <div class="product-details-card">
+                    <div class="product-details-card-header">Product Details</div>
+                    <table class="table table-borderless mb-0">
+                        <tbody>
+                            <tr>
+                                <td>SKU</td>
+                                <td>{{ product.sku }}</td>
+                            </tr>
+                            {% if product.weight %}
+                            <tr>
+                                <td>Weight</td>
+                                <td>{{ product.weight }} kg</td>
+                            </tr>
+                            {% endif %}
+                            {% if product.dimensions %}
+                            <tr>
+                                <td>Dimensions</td>
+                                <td>{{ product.dimensions }}</td>
+                            </tr>
+                            {% endif %}
+                            {% if product.material %}
+                            <tr>
+                                <td>Material</td>
+                                <td>{{ product.material }}</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Tabs: Description, Specs, Reviews -->
+        <div class="product-tabs-section" data-aos="fade-up">
+            <ul class="nav nav-tabs" id="productTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button">
+                        Description
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="specifications-tab" data-bs-toggle="tab" data-bs-target="#specifications" type="button">
+                        Specifications
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button">
+                        Reviews ({{ product.reviews.count }})
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="productTabsContent">
+                <div class="tab-pane fade show active" id="description">
+                    <p>{{ product.description|linebreaks }}</p>
+                </div>
+
+                <div class="tab-pane fade" id="specifications">
+                    {% if product.attributes.all %}
+                    <table class="table">
+                        <tbody>
+                            {% for attr in product.attributes.all %}
+                            <tr>
+                                <td>{{ attr.name }}</td>
+                                <td>{{ attr.value }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-muted">No specifications available.</p>
+                    {% endif %}
+                </div>
+
+                <div class="tab-pane fade" id="reviews">
+                    <div id="reviewsList">
+                        <div class="text-center py-4">
+                            <div class="spinner-border" role="status" style="color:var(--gold)!important;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Products -->
+        <div class="related-section" data-aos="fade-up">
+            <h3 class="related-heading">You May Also Like</h3>
+            <div class="row g-4" id="relatedProducts">
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border" role="status" style="color:var(--gold)!important;"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const productId = parseInt('{{ product.id }}');
+    const productSlug = '{{ product.slug }}';
+
+    // Change quantity
+    function changeQuantity(delta) {
+        const input = document.getElementById('quantity');
+        let value = parseInt(input.value) + delta;
+        const maxStock = parseInt('{{ product.stock_quantity }}');
+        value = Math.max(1, Math.min(value, maxStock));
+        input.value = value;
+    }
+
+    // Add to cart
+    function addToCart() {
+        const quantity = document.getElementById('quantity').value;
+        alert(`Added ${quantity} item(s) to cart! (Cart API integration needed)`);
+    }
+
+    // Add to wishlist
+    function addToWishlist() {
+        alert('Added to wishlist! (Wishlist API integration needed)');
+    }
+
+    // Load reviews
+    fetch(`/api/reviews/product/${productId}/`)
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('reviewsList');
+            if (data.results && data.results.length > 0) {
+                container.innerHTML = data.results.map(review => `
+                    <div class="review-card">
+                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="review-author">${review.user_name}</span>
+                                ${review.is_verified_purchase ? '<span class="review-verified">Verified</span>' : ''}
+                            </div>
+                            <div class="review-stars">
+                                ${'<i class="bi bi-star-fill"></i>'.repeat(review.rating)}${'<i class="bi bi-star review-empty-star"></i>'.repeat(5 - review.rating)}
+                            </div>
+                        </div>
+                        <div class="review-title">${review.title}</div>
+                        <p class="review-body">${review.comment}</p>
+                        <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem; margin:0;">No reviews yet. Be the first to review!</p>';
+            }
+        })
+        .catch(error => console.error('Error:', error));
+
+    // Load related products
+    fetch(`/api/products/${productSlug}/related/`)
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('relatedProducts');
+            if (data.results && data.results.length > 0) {
+                container.innerHTML = data.results.map((product, i) => `
+                    <div class="col-lg-3 col-md-4 col-sm-6" data-aos="fade-up" data-aos-delay="${i * 60}">
+                        <div class="related-card">
+                            <div style="overflow:hidden;">
+                                <img src="${product.primary_image || '/static/img/placeholder.jpg'}" alt="${product.name}">
+                            </div>
+                            <div class="related-card-body">
+                                <a href="/products/${product.slug}/" class="related-card-name">${product.name}</a>
+                                <div class="related-card-price">$${product.price}</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                if (typeof AOS !== 'undefined') AOS.refresh();
+            } else {
+                container.innerHTML = '<div class="col-12"><p style="color:var(--text-muted); font-size:0.9rem;">No related products found.</p></div>';
+            }
+        })
+        .catch(error => console.error('Error:', error));
+</script>
+{% endblock %}
